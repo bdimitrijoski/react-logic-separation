@@ -1,27 +1,27 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSignalValue } from '../lib/use-signal-value';
-import {
-  createDraftUserCommand,
-  draftVersionsService,
-  usersRepository
-} from '../services';
+import { createDraftUserCommand, fetchUsersQuery } from '../services';
 import { UsersListViewModel } from './users-list.view-model';
-import { User } from 'contacts-app-core';
 
+/**
+ * The ViewModels are exposed to the views via custom hooks.
+ * The only thing that the hooks would do is to initialize the view model
+ * and return the signals/derived signals that the view would use as raw values.
+ */
 export function useUsersListViewModel() {
+  const navigate = useNavigate();
+
   // initialize the view model only once
   // when the hook/view model is first used
   const model = useMemo(
     () =>
       new UsersListViewModel({
-        usersRepository,
-        draftsService: draftVersionsService,
+        fetchUsersQuery,
         createDraftUser: createDraftUserCommand,
       }),
     []
   );
-  const navigate = useNavigate();
 
   // Called when user hits "Create new User":
   const createNewDraftUser = () => {
@@ -31,8 +31,8 @@ export function useUsersListViewModel() {
   };
 
   return {
-    users: useSignalValue(model.usersQueryResult.data),
-    isLoading: useSignalValue(model.usersQueryResult.isLoading),
+    users: useSignalValue(model.users),
+    isLoading: useSignalValue(model.isLoading),
     search: useSignalValue(model.searchQuery),
     setSearch: model.setSearchQuery.bind(model),
     createNewDraftUser,

@@ -1,7 +1,6 @@
 export * from './lib/types';
 export * from './lib/types/dto';
 export * from './lib/boundaries';
-export * from './lib/boundaries/repositories';
 
 // Services
 export { UsersApiService } from './lib/services/users-api.service';
@@ -18,7 +17,6 @@ export { RemoveDraftVersionCommand } from './lib/commands/remove-draft-version.c
 export { UpdateDraftVersionCommand } from './lib/commands/update-draft-version.command';
 export { CreateUserCommand } from './lib/commands/create-user.command';
 export { UpdateUserCommand } from './lib/commands/update-user.command';
-export { SearchUsersCommand } from './lib/commands/search-users.command';
 
 // Contexts
 export * from './lib/context/ListPanelContext';

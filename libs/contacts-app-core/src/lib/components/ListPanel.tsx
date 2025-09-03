@@ -9,7 +9,7 @@ export function ListPanel() {
     useUsersListViewModel();
 
   if (isLoading) return <div>Loading...</div>;
-
+  
   return (
     <aside className="listbox">
       <button

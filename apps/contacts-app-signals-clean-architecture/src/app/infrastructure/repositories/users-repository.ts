@@ -1,9 +1,8 @@
-import { User, UsersApiService } from 'contacts-app-core';
-import { SignalCollection } from '../../lib/signals-collections';
 import { QueryClient } from '@tanstack/react-query';
-import { computed, ReadonlySignal } from '@preact/signals-core';
+import { User, UsersApiService } from 'contacts-app-core';
 import { IUsersRepository } from '../../core/repositories';
-// import { ReadonlySignal } from '../../core/types';
+import { SignalCollection } from '../../lib/signals-collections';
+import { computed } from '@preact/signals-core';
 
 export interface UsersRepositoryDependencies {
   usersService: UsersApiService;
@@ -13,21 +12,26 @@ export class UsersRepository implements IUsersRepository {
   public readonly _usersCollection: SignalCollection<User>;
 
   constructor(
-    private queryClient: QueryClient,
+    queryClient: QueryClient,
     private dependencies: UsersRepositoryDependencies
   ) {
     this._usersCollection = new SignalCollection<User>(
       'users',
       ['users-list'],
-      () => {
-        console.log('Fetching users from API service...');
-        return dependencies.usersService.fetchUsers();
+      async () => {
+        const users = await dependencies.usersService.fetchUsers();
+        console.log('Fetching users from API service...', users);
+        return users;
       },
       queryClient,
       {
         onDelete: (id) => console.log('Deleted user', id),
       }
     );
+  }
+
+  public get isReady() {
+    return computed(() => this._usersCollection.queryResult.value.isFetched);
   }
 
   async fetchById(id: number): Promise<User | undefined> {
@@ -44,26 +48,16 @@ export class UsersRepository implements IUsersRepository {
   getAll(): Promise<User[]> {
     return Promise.resolve(this._usersCollection.items.value);
   }
-  insert(item: User): Promise<void> {
-    throw new Error('Method not implemented.');
+  insert(user: User): Promise<User> {
+    this._usersCollection.insert(user);
+    return Promise.resolve(user);
   }
-  update(item: User): Promise<void> {
-    throw new Error('Method not implemented.');
+  update(user: User): Promise<User> {
+    this._usersCollection.update(user);
+    return Promise.resolve(user);
   }
   delete(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  public getAllUsers(): ReadonlySignal<User[]> {
-    return this._usersCollection.items;
-  }
-
-  public filterUsers(searchQuery: string): ReadonlySignal<User[]> {
-    return computed(() =>
-      this._usersCollection.items.value.filter((user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
+    return Promise.resolve(this._usersCollection.delete(id));
   }
 
   // Extra domain-specific repo methods
@@ -71,9 +65,5 @@ export class UsersRepository implements IUsersRepository {
     return this._usersCollection.fetchBy(id, () =>
       this.dependencies.usersService.fetchUser(id)
     );
-  }
-
-  createUser(user: User) {
-    this._usersCollection.insert(user);
   }
 }

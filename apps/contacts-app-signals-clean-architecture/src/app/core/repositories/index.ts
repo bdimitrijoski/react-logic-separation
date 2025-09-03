@@ -1,15 +1,17 @@
-import { User } from "contacts-app-core";
-import { ReadonlySignal, Signal } from "../types";
+import { User, UserVersion } from "contacts-app-core";
 
 export interface IRepository<T, ID> {
   getAll(): Promise<T[]>;
-//   getById(id: ID): ReadonlySignal<T | undefined>;
-  insert(item: T): Promise<void>;
-  update(item: T): Promise<void>;
+  insert(item: T): Promise<T>;
+  update(item: T): Promise<T>;
   delete(id: ID): Promise<void>;   
 }
 
 export interface IUsersRepository extends IRepository<User, string> {
-  filterUsers(searchQuery: string): ReadonlySignal<User[]>;
   fetchById(id: number): Promise<User | undefined>;
+}
+
+export interface IDraftsRepository extends IRepository<UserVersion, string> {
+  getDraftsForUser(userId: number): Promise<UserVersion[]>;
+  getAllSync(): UserVersion[];
 }

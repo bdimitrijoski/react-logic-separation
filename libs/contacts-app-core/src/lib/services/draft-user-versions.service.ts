@@ -1,7 +1,6 @@
-
 import { UserVersion } from '../types';
 
-export class DraftVersionsService  {
+export class DraftVersionsService {
   getDrafts(userId: number): Promise<UserVersion[]> {
     return new Promise((resolve) => {
       const raw = localStorage.getItem(this.createKey());
@@ -11,13 +10,15 @@ export class DraftVersionsService  {
     });
   }
 
+  getAll(): Promise<UserVersion[]> {
+    return Promise.resolve(this.getAllDraftsSync());
+  }
+  
   getAllDraftsSync(): UserVersion[] {
+    const raw = localStorage.getItem(this.createKey());
+    if (!raw) return [];
 
-      const raw = localStorage.getItem(this.createKey());
-      if (!raw) return [];
-
-      return JSON.parse(raw) as UserVersion[];
-
+    return JSON.parse(raw) as UserVersion[];
   }
 
   async saveDraft(userId: number, draft: UserVersion): Promise<UserVersion> {
@@ -31,11 +32,9 @@ export class DraftVersionsService  {
   }
 
   async deleteDraft(userId: number, versionId: string): Promise<void> {
-    const versions = await this.getDrafts(userId)
-    
-    const filteredVersions = versions.filter(
-      (v) => v.id !== versionId
-    );
+    const versions = await this.getDrafts(userId);
+
+    const filteredVersions = versions.filter((v) => v.id !== versionId);
     localStorage.setItem(this.createKey(), JSON.stringify(filteredVersions));
   }
 

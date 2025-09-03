@@ -6,8 +6,8 @@ import {
   ListPanel,
   ListPanelContextProvider,
 } from 'contacts-app-core';
-import { useUsersListViewModel } from './viewModels/useUsersListViewModel';
 import { useUserDetailsViewModel } from './viewModels/useUserDetailsViewModel';
+import { useUsersListViewModel } from './viewModels/useUsersListViewModel';
 
 export function App() {
 

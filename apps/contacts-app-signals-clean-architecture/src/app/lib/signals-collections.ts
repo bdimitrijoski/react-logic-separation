@@ -1,6 +1,6 @@
-import { computed, ReadonlySignal } from "@preact/signals";
-import { QueryClient } from "@tanstack/react-query";
-import { query, SignalQuery } from "./query";
+import { computed, ReadonlySignal } from '@preact/signals';
+import { QueryClient } from '@tanstack/react-query';
+import { query, SignalQuery } from './query';
 
 type ID = string | number;
 
@@ -37,10 +37,12 @@ export class SignalCollection<T extends { id: ID }> {
     //   }
     // });
   }
-  
 
-   public get items(): ReadonlySignal<T[]> {
+  public get items(): ReadonlySignal<T[]> {
     return computed(() => this.queryResult.value.data || []);
+  }
+  public get isLoading(): ReadonlySignal<boolean> {
+    return computed(() => this.queryResult.value.isLoading);
   }
 
   private getCache = <R = any>(key: unknown[]): R | undefined =>
@@ -57,9 +59,7 @@ export class SignalCollection<T extends { id: ID }> {
   }
 
   update(item: T) {
-    const updated = this.items.value.map((i) =>
-      i.id === item.id ? item : i
-    );
+    const updated = this.items.value.map((i) => (i.id === item.id ? item : i));
     this.setCache(this.listKey, updated);
     this.callbacks.onUpdate?.(item);
   }
