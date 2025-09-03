@@ -6,14 +6,18 @@
     "serve": "nx serve"
   },
   "dependencies": {
+    "@preact-signals/utils": "^0.23.1",
+    "@preact/signals": "^2.3.1",
     "@preact/signals-core": "^1.12.1",
     "@tanstack/query-db-collection": "^0.2.5",
     "@tanstack/react-db": "^0.1.6",
     "@tanstack/react-query": "^5.85.5",
     "brandi": "^4.0.2",
+    "fast-array-diff": "^1.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-router-dom": "6.29.0"
+    "react-router-dom": "6.29.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",

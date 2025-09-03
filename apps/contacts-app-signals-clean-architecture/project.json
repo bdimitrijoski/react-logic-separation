@@ -1,0 +1,9 @@
+{
+  "name": "contacts-app-signals-clean-architecture",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/contacts-app-signals-clean-architecture/src",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project contacts-app-signals-clean-architecture --web",
+  "targets": {}
+}
