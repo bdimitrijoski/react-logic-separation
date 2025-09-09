@@ -124,7 +124,7 @@ export function derived<T>(
   const isLoading = signal<boolean>(true);
   const error = signal<unknown>(null);
 
-  effect(() => {
+  const effectCleanup = effect(() => {
     let isCancelled = false;
 
     // Create abort controller
@@ -160,7 +160,13 @@ export function derived<T>(
     };
   });
 
-  return { data, isLoading, error };
+  // Return object with data, loading state, error, and dispose function
+  return {
+    data,
+    isLoading,
+    error,
+    dispose: effectCleanup
+  };
 }
 
 export function resource() {

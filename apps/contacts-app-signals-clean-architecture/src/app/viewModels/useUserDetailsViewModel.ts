@@ -12,7 +12,7 @@ export function useUserDetailsViewModel(userId: number) {
     createDraftUser: createDraftUserCommand,
     deleteDraftUserCommand
   }, userId), [userId]);
-  const model = useViewModel(createCallback)
+  const model = useViewModel(createCallback, [userId]);
   // const model = useMemo(() => new UsersDetailsViewModel({
   //   loadUserQuery,
   //   createDraftUser: createDraftUserCommand,

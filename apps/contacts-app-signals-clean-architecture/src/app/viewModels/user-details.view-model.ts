@@ -24,19 +24,22 @@ export class UsersDetailsViewModel implements IViewModel {
   selectedVersion = signal<string>('');
   private _loadUserQueryResult: QueryResult<FetchUserQueryResult | undefined>;
 
+  private _disposables: Array<() => void> = [];
+
   constructor(
     private dependencies: UsersDetailsViewModelDependencies,
     userId: number
   ) {
     console.log('UsersDetailsViewModel init');
     this.userId.value = userId;
+    
     // Queries
     this._loadUserQueryResult = derived(() =>
       dependencies.loadUserQuery.execute(this.userId.value)
     );
 
     // One‑time init: set from first fetched value
-    effect(() => {
+    const initEffect = effect(() => {
       if (this.userVersions.value?.length && !this.selectedVersion.value) {
         this.selectedVersion.value = this.userVersions.value?.[0].id;
       }
@@ -47,6 +50,9 @@ export class UsersDetailsViewModel implements IViewModel {
           null;
       }
     });
+    
+    // Store the effect cleanup function
+    this._disposables.push(initEffect);
   }
 
   public get publishedUser(): ReadonlySignal<User | undefined> {
@@ -101,6 +107,17 @@ export class UsersDetailsViewModel implements IViewModel {
   }
 
   dispose(): void {
-    // cleanup
+    // Call all stored cleanup functions
+    this._disposables.forEach(disposeFn => disposeFn());
+    
+    // Clear the arrays
+    this._disposables = [];
+    
+    // Clean up the derived query results
+    if (this._loadUserQueryResult && this._loadUserQueryResult.dispose) {
+      this._loadUserQueryResult.dispose();
+    }
+    
+    console.log('UsersDetailsViewModel disposed');
   }
 }
