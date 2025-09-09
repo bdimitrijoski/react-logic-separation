@@ -56,7 +56,7 @@ export class UsersRepository implements IUsersRepository {
     this._usersCollection.update(user);
     return Promise.resolve(user);
   }
-  delete(id: string): Promise<void> {
+  delete(id: number): Promise<void> {
     return Promise.resolve(this._usersCollection.delete(id));
   }
 

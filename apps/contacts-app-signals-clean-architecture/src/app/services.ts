@@ -20,6 +20,7 @@ import { CreateDraftUserCommand } from './core/commands/create-draft-user.comman
 import { FetchUsersQuery } from './core/commands/fetch-users.query';
 import { LoadUserQuery } from './core/commands/load-user.query';
 import { DraftsRepository } from './infrastructure/repositories/drafts-repository';
+import { DeleteDraftUserCommand } from './core/commands/delete-draft-user.command';
 
 // Initialize the core services
 const httpClient = new FetchHttpClient();
@@ -59,7 +60,8 @@ export const updateUserCommand = new UpdateUserCommand(usersApiService);
 
 export const createDraftUserCommand = new CreateDraftUserCommand(
   userFactoryService,
-  draftsRepository
+  draftsRepository,
+  usersRepository
 );
 
 export const fetchUsersQuery = new FetchUsersQuery(
@@ -71,4 +73,8 @@ export const loadUserQuery = new LoadUserQuery(
   usersRepository,
   draftsRepository,
   userFactoryService
+);
+export const deleteDraftUserCommand = new DeleteDraftUserCommand(
+  draftsRepository,
+  usersRepository,
 );

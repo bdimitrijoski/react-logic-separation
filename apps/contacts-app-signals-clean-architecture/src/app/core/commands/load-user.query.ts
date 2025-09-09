@@ -9,15 +9,17 @@ export class LoadUserQuery {
   ) {}
 
   async execute(userId: number) {
+    console.log('LoadUserQuery called');
+    const userDrafts = this.draftsRepository.getDraftsForUserSync(userId);
     const publishedUser = await this.usersRepository.fetchById(userId);
 
-    const userDrafts = await this.draftsRepository.getDraftsForUser(userId);
 
     const userVersions = [
           ...(publishedUser ? [this.userFactoryService.createVersion(publishedUser)] : []),
           ...(userDrafts || []),
         ];
 
+        console.log('LoadUserQuery called', userVersions)
     return {
         publishedUser,
         userVersions

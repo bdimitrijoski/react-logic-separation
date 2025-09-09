@@ -1,33 +1,43 @@
 import { computed, effect, ReadonlySignal, signal } from '@preact/signals-core';
 import { User, UserVersion } from 'contacts-app-core';
+import { CreateDraftUserCommand } from '../core/commands/create-draft-user.command';
 import { LoadUserQuery } from '../core/commands/load-user.query';
-import { derived } from '../lib/signals';
 import { FetchUserQueryResult } from '../core/dto';
-import { QueryResult } from '../core/types';
+import { IViewModel, QueryResult } from '../core/types';
+import { derived } from '../lib/signals';
+import { DeleteDraftUserCommand } from '../core/commands/delete-draft-user.command';
 
 export type UsersDetailsViewModelDependencies = {
   loadUserQuery: LoadUserQuery;
+  createDraftUser: CreateDraftUserCommand;
+  deleteDraftUserCommand: DeleteDraftUserCommand;
 };
 
 /**
  * The view model is like a glue between the view and the domain/data layers.
  * It uses/orchestrates the commands/queries/repositories to get the data and expose it to the view.
  */
-export class UsersDetailsViewModel {
+export class UsersDetailsViewModel implements IViewModel {
   searchQuery = signal<string>('');
+  userId = signal<number>(-1);
   draft = signal<UserVersion | null>(null);
   selectedVersion = signal<string>('');
   private _loadUserQueryResult: QueryResult<FetchUserQueryResult | undefined>;
 
-  constructor(dependencies: UsersDetailsViewModelDependencies, userId: number) {
+  constructor(
+    private dependencies: UsersDetailsViewModelDependencies,
+    userId: number
+  ) {
+    console.log('UsersDetailsViewModel init');
+    this.userId.value = userId;
     // Queries
     this._loadUserQueryResult = derived(() =>
-      dependencies.loadUserQuery.execute(userId)
+      dependencies.loadUserQuery.execute(this.userId.value)
     );
 
     // One‑time init: set from first fetched value
     effect(() => {
-      if (this.userVersions.value?.length) {
+      if (this.userVersions.value?.length && !this.selectedVersion.value) {
         this.selectedVersion.value = this.userVersions.value?.[0].id;
       }
 
@@ -45,12 +55,14 @@ export class UsersDetailsViewModel {
     );
   }
   public get drafts(): ReadonlySignal<UserVersion[] | undefined> {
-    return computed(
-      () =>
+    return computed(() => {
+      console.log('get drafts');
+      return (
         this._loadUserQueryResult.data.value?.userVersions.filter(
           (v) => v.isDraft
         ) || []
-    );
+      );
+    });
   }
 
   public get userVersions(): ReadonlySignal<UserVersion[] | undefined> {
@@ -59,4 +71,36 @@ export class UsersDetailsViewModel {
 
   public isLoading = computed(() => this._loadUserQueryResult.isLoading.value);
   public isError = computed(() => !this._loadUserQueryResult.error?.value);
+
+  async startEdit() {
+    if (!this.publishedUser) return;
+    const newVersion = await this.dependencies.createDraftUser.execute({
+      user: this.publishedUser.value,
+    });
+    console.log('newVersion', newVersion);
+    this.selectedVersion.value = newVersion.id;
+    // this.draft.value = newVersion;
+  }
+
+  updateUser(field: keyof User, value: string) {
+    if (!this.draft.value) return;
+    this.draft.value = {
+      ...this.draft.value,
+      data: { ...this.draft.value?.data, [field]: value },
+    };
+  }
+
+  async discardDraft() {
+    if (!this.draft.value || !this.userVersions.value) return;
+    await this.dependencies.deleteDraftUserCommand.execute({
+      user: this.draft.value?.data,
+    });
+
+    this.draft.value = null;
+    this.selectedVersion.value = this.userVersions.value?.[0].id;
+  }
+
+  dispose(): void {
+    // cleanup
+  }
 }

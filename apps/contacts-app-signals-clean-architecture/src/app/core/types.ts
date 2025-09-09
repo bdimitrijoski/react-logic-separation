@@ -5,3 +5,7 @@ export type QueryResult<T> = {
     isLoading: Signal<boolean>;
     error?: Signal<Error | string | null | unknown>;
 }
+
+export interface IViewModel {
+    dispose: () => void;
+}

@@ -17,7 +17,7 @@ export class DraftsRepository implements IDraftsRepository {
   ) {
     this._draftsCollection = new SignalCollection<UserVersion>(
       'drafts',
-      ['user-drafts'],
+      ['drafts'],
       async () => {
         const drafts = await dependencies.draftsService.getAll();
         console.log('Fetching drafts from API service...', drafts);
@@ -39,6 +39,9 @@ export class DraftsRepository implements IDraftsRepository {
       this._draftsCollection.items.value.filter((d) => d.data.id === userId)
     );
   }
+  getDraftsForUserSync(userId: number): UserVersion[] {
+    return this._draftsCollection.items.value.filter((d) => d.data.id === userId);
+  }
 
   getAll(): Promise<UserVersion[]> {
     return Promise.resolve(this._draftsCollection.items.value);
@@ -58,5 +61,18 @@ export class DraftsRepository implements IDraftsRepository {
   }
   delete(id: string): Promise<void> {
     return Promise.resolve(this._draftsCollection.delete(id));
+  }
+  
+  deleteDraftsForUser(userId: number): Promise<void> {
+    return new Promise((resolve) => {
+      const entriesToDelete = this._draftsCollection.items.value.filter(
+        (draft) => draft.data.id === userId
+      );
+      entriesToDelete.forEach((draft) => {
+        this._draftsCollection.delete(draft.id);
+      });
+      resolve();
+    });
+    // return Promise.resolve(this._draftsCollection.delete(id));
   }
 }

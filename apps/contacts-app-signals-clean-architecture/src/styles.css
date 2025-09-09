@@ -72,8 +72,15 @@ body {
     text-overflow: ellipsis;
 }
 
+.listbox-item .delete-btn {
+    display: none;
+}
+
 .listbox-item:hover {
     background: var(--cogs-surface-hover);
+}
+.listbox-item:hover .delete-btn {
+    display: inline-block;
 }
 
 .listbox-item.selected {

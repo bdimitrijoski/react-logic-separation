@@ -7,6 +7,8 @@ export interface UsersListViewModelHookResult {
     search: string;
     setSearch: (value: string) => void;
     createNewDraftUser: () => void;
+    deleteUser?: (user: User) => void;
+    loadMore?: (page: number) => void;
 }
 export type useUsersListViewModelHook = () => UsersListViewModelHookResult;
 

@@ -4,10 +4,12 @@ import type { FetchUsersQuery } from '../core/commands/fetch-users.query';
 import type { QueryResult } from '../core/types';
 import { derived } from '../lib/signals';
 import type { CreateDraftUserCommand } from '../core/commands/create-draft-user.command';
+import { DeleteDraftUserCommand } from '../core/commands/delete-draft-user.command';
 
 export type UsersListViewModelDependencies = {
   fetchUsersQuery: FetchUsersQuery;
   createDraftUser: CreateDraftUserCommand;
+  deleteDraftUserCommand: DeleteDraftUserCommand;
 };
 
 /**
@@ -16,11 +18,13 @@ export type UsersListViewModelDependencies = {
  */
 export class UsersListViewModel {
   searchQuery = signal<string>('');
+  page = signal<number>(1);
   usersQueryResult: QueryResult<User[] | undefined>;
 
   constructor(private dependencies: UsersListViewModelDependencies) {
+    console.log('new UsersListViewModel', this.page.value)
     this.usersQueryResult = derived(() =>
-      dependencies.fetchUsersQuery.execute(this.searchQuery.value)
+      dependencies.fetchUsersQuery.execute(this.searchQuery.value, this.page.value)
     );
   }
 
@@ -38,5 +42,11 @@ export class UsersListViewModel {
 
   createNewDraftUser() {
     this.dependencies.createDraftUser.execute();
+  }
+  deleteDraftUser(user: User) {
+    this.dependencies.deleteDraftUserCommand.execute({ user });
+  }
+  loadMoreUsers() {
+    this.page.value = this.page.value +1;
   }
 }

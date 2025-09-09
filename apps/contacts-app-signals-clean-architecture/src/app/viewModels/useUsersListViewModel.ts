@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSignalValue } from '../lib/use-signal-value';
-import { createDraftUserCommand, fetchUsersQuery } from '../services';
+import { createDraftUserCommand, deleteDraftUserCommand, fetchUsersQuery } from '../services';
 import { UsersListViewModel } from './users-list.view-model';
 
 /**
@@ -19,16 +19,17 @@ export function useUsersListViewModel() {
       new UsersListViewModel({
         fetchUsersQuery,
         createDraftUser: createDraftUserCommand,
+        deleteDraftUserCommand,
       }),
     []
   );
 
   // Called when user hits "Create new User":
-  const createNewDraftUser = () => {
+  const createNewDraftUser = useCallback(() => {
     model.createNewDraftUser();
     // not fully finished, but we would need to navigate to the new user details page
     // navigate(`/users/${newUserId}`);
-  };
+  }, [model]);
 
   return {
     users: useSignalValue(model.users),
@@ -36,5 +37,7 @@ export function useUsersListViewModel() {
     search: useSignalValue(model.searchQuery),
     setSearch: model.setSearchQuery.bind(model),
     createNewDraftUser,
+    deleteUser: model.deleteDraftUser.bind(model),
+    loadMore: model.loadMoreUsers.bind(model)
   };
 }

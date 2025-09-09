@@ -2,12 +2,14 @@ import { HttpClient } from '../boundaries';
 import { API_URL } from '../constants';
 import { User } from '../types';
 import { CreateUserDTO } from '../types/dto';
+import { mockUsers } from './mock-users';
 
 
 export class UsersApiService {
   constructor(private httpClient: HttpClient) {}
   async fetchUsers(): Promise<User[]> {
-    return this.httpClient.get<User[]>(`${API_URL}/users`);
+    // return this.httpClient.get<User[]>(`${API_URL}/users`);
+    return Promise.resolve(mockUsers)
   }
 
   async fetchUser(id: number): Promise<User> {
