@@ -18,11 +18,7 @@ export class UsersRepository implements IUsersRepository {
     this._usersCollection = new SignalCollection<User>(
       'users',
       ['users-list'],
-      async () => {
-        const users = await dependencies.usersService.fetchUsers();
-        console.log('Fetching users from API service...', users);
-        return users;
-      },
+      async () => await dependencies.usersService.fetchUsers(),
       queryClient,
       {
         onDelete: (id) => console.log('Deleted user', id),
@@ -60,7 +56,6 @@ export class UsersRepository implements IUsersRepository {
     return Promise.resolve(this._usersCollection.delete(id));
   }
 
-  // Extra domain-specific repo methods
   async getOrFetchUser(id: number) {
     return this._usersCollection.fetchBy(id, () =>
       this.dependencies.usersService.fetchUser(id)

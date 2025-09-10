@@ -4,6 +4,25 @@
   "sourceRoot": "apps/contacts-app-signals-clean-architecture/src",
   "projectType": "application",
   "tags": [],
-  "// targets": "to see all targets run: nx show project contacts-app-signals-clean-architecture --web",
-  "targets": {}
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "{projectRoot}/dist",
+        "generatePackageJson": false,
+        "skipTypeCheck": false,
+        "config": "{projectRoot}/vite.config.ts"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "options": {
+        "config": "{projectRoot}/vite.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
 }

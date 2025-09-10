@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSignalValue } from '../lib/use-signal-value';
 import { createDraftUserCommand, deleteDraftUserCommand, fetchUsersQuery } from '../services';
+import { getUserIdFromPath } from '../utils/url-params';
 import { UsersListViewModel } from './users-list.view-model';
 
 /**
@@ -31,10 +32,12 @@ export function useUsersListViewModel() {
     // navigate(`/users/${newUserId}`);
   }, [model]);
 
+
   return {
     users: useSignalValue(model.users),
     isLoading: useSignalValue(model.isLoading),
     search: useSignalValue(model.searchQuery),
+    selectedUserId: getUserIdFromPath(),
     setSearch: model.setSearchQuery.bind(model),
     createNewDraftUser,
     deleteUser: model.deleteDraftUser.bind(model),

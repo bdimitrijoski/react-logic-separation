@@ -22,7 +22,6 @@ export class UsersListViewModel {
   usersQueryResult: QueryResult<User[] | undefined>;
 
   constructor(private dependencies: UsersListViewModelDependencies) {
-    console.log('new UsersListViewModel', this.page.value)
     this.usersQueryResult = derived(() =>
       dependencies.fetchUsersQuery.execute(this.searchQuery.value, this.page.value)
     );
@@ -40,8 +39,8 @@ export class UsersListViewModel {
     this.searchQuery.value = query;
   }
 
-  createNewDraftUser() {
-    this.dependencies.createDraftUser.execute();
+  async createNewDraftUser() {
+    await this.dependencies.createDraftUser.execute();
   }
   deleteDraftUser(user: User) {
     this.dependencies.deleteDraftUserCommand.execute({ user });

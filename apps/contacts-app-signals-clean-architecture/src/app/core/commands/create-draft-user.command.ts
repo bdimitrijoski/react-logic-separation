@@ -1,5 +1,5 @@
 import { User, UserVersionFactory } from 'contacts-app-core';
-import { IDraftsRepository, IUsersRepository } from '../repositories';
+import { IDraftsRepository } from '../repositories';
 
 interface CreateDraftUserDTO {
   user?: User;
@@ -8,29 +8,23 @@ export class CreateDraftUserCommand {
   constructor(
     private userFactoryService: UserVersionFactory,
     private draftsRepository: IDraftsRepository,
-    private usersRepository: IUsersRepository
   ) {}
   async execute(dto?: CreateDraftUserDTO) {
-    const userId = dto?.user?.id ?? Date.now();
     let user = dto?.user;
 
-    if (dto?.user) {
-      user = {
-        ...dto.user,
-      };
-    } else {
-      const draftUser = this.userFactoryService.createUser(Date.now(), {
+    // If no user is provided, create a new one with a unique ID
+    if (!user) {
+      const userId = Date.now();
+      user = this.userFactoryService.createUser(userId, {
         name: `New User ${userId}`,
         email: '',
         phone: '',
       });
-      user = this.userFactoryService.createUser(userId, draftUser);
     }
 
     const version = this.userFactoryService.createDraftVersion(user);
-    console.log('Creating new user', version);
-    const createdVersion = await this.draftsRepository.insert(version);
-    // await this.usersRepository.insert(user);
+    await this.draftsRepository.insert(version);
+
     return version;
   }
 }

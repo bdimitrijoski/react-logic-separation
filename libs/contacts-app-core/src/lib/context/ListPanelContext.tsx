@@ -5,6 +5,7 @@ export interface UsersListViewModelHookResult {
     users: User[];
     isLoading?: boolean;
     search: string;
+    selectedUserId?: string;
     setSearch: (value: string) => void;
     createNewDraftUser: () => void;
     deleteUser?: (user: User) => void;

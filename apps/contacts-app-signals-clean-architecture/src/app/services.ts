@@ -60,8 +60,7 @@ export const updateUserCommand = new UpdateUserCommand(usersApiService);
 
 export const createDraftUserCommand = new CreateDraftUserCommand(
   userFactoryService,
-  draftsRepository,
-  usersRepository
+  draftsRepository
 );
 
 export const fetchUsersQuery = new FetchUsersQuery(
@@ -76,5 +75,4 @@ export const loadUserQuery = new LoadUserQuery(
 );
 export const deleteDraftUserCommand = new DeleteDraftUserCommand(
   draftsRepository,
-  usersRepository,
 );

@@ -65,7 +65,7 @@ export function useUserDetailsViewModel(userId: number) {
 
   console.log('selectedVersion', selectedVersion)
   return {
-    versions: useSignalValue(model.userVersions),
+    versions: useSignalValue(model.userVersions) || [],
     selectedId: selectedVersion,
     setSelectedId,
     isLoading: false, // useSignalValue(model.isLoading),

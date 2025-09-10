@@ -1,4 +1,4 @@
-import { User, UserVersion } from "contacts-app-core";
+import { User } from "contacts-app-core";
 import { IDraftsRepository, IUsersRepository } from "../repositories";
 
 export class FetchUsersQuery {
@@ -8,12 +8,7 @@ export class FetchUsersQuery {
   ) {}
 
   async execute(searchQuery?: string, page = 1): Promise<User[]> {
-    console.log('FetchUsersQuery execute called', searchQuery, page);
-    
-    
-      // const drafts = this.draftsService.getAllDraftsSync();
       const drafts = await this.draftRepository.getAll();
-      // const drafts = [] as UserVersion[];
       const users = await this.usersRepository.getAll();
 
       let combinedList: User[] = [
@@ -30,7 +25,13 @@ export class FetchUsersQuery {
       const limit = 5;
       combinedList = combinedList.splice(0, page * limit );
 
-      console.log('Combined list:', combinedList);
+      // combined list can have duplicates if a user has a draft version
+      // get the latest version (draft) in that case
+      const uniqueMap = new Map<number, User>();
+      combinedList.forEach((user) => {
+        uniqueMap.set(user.id, user);
+      });
+      combinedList = Array.from(uniqueMap.values());
       return combinedList;
 
   }

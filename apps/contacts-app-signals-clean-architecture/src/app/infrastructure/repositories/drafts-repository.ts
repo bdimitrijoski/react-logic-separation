@@ -18,11 +18,7 @@ export class DraftsRepository implements IDraftsRepository {
     this._draftsCollection = new SignalCollection<UserVersion>(
       'drafts',
       ['drafts'],
-      async () => {
-        const drafts = await dependencies.draftsService.getAll();
-        console.log('Fetching drafts from API service...', drafts);
-        return drafts;
-      },
+      async () => await dependencies.draftsService.getAll(),
       queryClient,
       {
         onDelete: (id) => console.log('Deleted draft', id),
@@ -73,6 +69,5 @@ export class DraftsRepository implements IDraftsRepository {
       });
       resolve();
     });
-    // return Promise.resolve(this._draftsCollection.delete(id));
   }
 }

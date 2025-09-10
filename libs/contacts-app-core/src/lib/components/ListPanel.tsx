@@ -5,7 +5,7 @@ import { ListPanelContext } from '../context/ListPanelContext';
 
 export function ListPanel() {
   const { useUsersListViewModel } = useContext(ListPanelContext);
-  const { users, isLoading, search, setSearch, createNewDraftUser, deleteUser, loadMore } =
+  const { users, isLoading, search, selectedUserId, setSearch, createNewDraftUser, deleteUser, loadMore } =
     useUsersListViewModel();
 
   if (isLoading) return <div>Loading...</div>;
@@ -27,7 +27,7 @@ export function ListPanel() {
         onChange={(e) => setSearch(e.target.value)}
       />
       {users.map((u) => (
-        <ListBoxItem user={u} key={u.id.toString()} onDelete={deleteUser} />
+        <ListBoxItem user={u} key={u.id.toString()} selectedUserId={selectedUserId} onDelete={deleteUser} />
       ))}
 
       {loadMore ?  <button type='button' onClick={() => loadMore(2)}>Load more</button>: null}
