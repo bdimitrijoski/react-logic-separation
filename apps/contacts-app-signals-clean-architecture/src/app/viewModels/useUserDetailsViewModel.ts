@@ -1,9 +1,9 @@
-import { User, UserVersion } from 'contacts-app-core';
+import { UserVersion } from 'contacts-app-core';
 import { useCallback, useMemo } from 'react';
+import { useViewModel } from '../hooks/useViewModel';
 import { useSignalValue } from '../lib/use-signal-value';
 import { createDraftUserCommand, deleteDraftUserCommand, loadUserQuery, userFactoryService } from '../services';
 import { UsersDetailsViewModel } from './user-details.view-model';
-import { useViewModel } from '../hooks/useViewModel';
 
 export function useUserDetailsViewModel(userId: number) {
 

@@ -1,5 +1,5 @@
-import { User, UserVersion } from "contacts-app-core";
-import { IRepository } from "../types";
+import { IRepository, User, UserVersion } from "../../types";
+
 
 export interface IUsersRepository extends IRepository<User, number> {
   fetchById(id: number): Promise<User | undefined>;

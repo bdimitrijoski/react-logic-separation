@@ -1,6 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { DraftVersionsService, UserVersion } from 'contacts-app-core';
-import { IDraftsRepository } from '../../core/repositories';
+import { DraftVersionsService, UserVersion, IDraftsRepository } from 'contacts-app-core';
 import { SignalCollection } from '../../lib/signals-collections';
 import { computed } from '@preact/signals-core';
 

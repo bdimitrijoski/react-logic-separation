@@ -1,5 +1,6 @@
-import { User, UserVersionFactory } from 'contacts-app-core';
-import { IDraftsRepository } from '../repositories';
+import { User } from '../types';
+import { IDraftsRepository } from '../boundaries/repositories';
+import { UserVersionFactory } from '../services/user-version-factory.service';
 
 interface CreateDraftUserDTO {
   user?: User;

@@ -5,12 +5,12 @@ import {
   draftVersionMock,
   publishedUserDraftVersionMock,
   publishedUserMock,
-} from '../../../__mocks__/mockData';
+} from '../../__mocks__/mockData';
 import { FetchUsersQuery } from './fetch-users.query';
 import {
   usersRepositoryMock,
   draftsRepositoryMock,
-} from '../../../__mocks__/mockServices';
+} from '../../__mocks__/mockServices';
 
 describe('FetchUsersQuery Test', () => {
   beforeEach(() => {

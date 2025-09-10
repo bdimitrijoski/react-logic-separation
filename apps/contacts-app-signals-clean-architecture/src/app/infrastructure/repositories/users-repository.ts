@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
-import { User, UsersApiService } from 'contacts-app-core';
-import { IUsersRepository } from '../../core/repositories';
+import { User, UsersApiService, IUsersRepository } from 'contacts-app-core';
+
 import { SignalCollection } from '../../lib/signals-collections';
 import { computed } from '@preact/signals-core';
 
@@ -54,11 +54,5 @@ export class UsersRepository implements IUsersRepository {
   }
   delete(id: number): Promise<void> {
     return Promise.resolve(this._usersCollection.delete(id));
-  }
-
-  async getOrFetchUser(id: number) {
-    return this._usersCollection.fetchBy(id, () =>
-      this.dependencies.usersService.fetchUser(id)
-    );
   }
 }

@@ -1,5 +1,5 @@
-import { User } from "contacts-app-core";
-import { IDraftsRepository } from "../repositories";
+import { User } from "../types";
+import { IDraftsRepository } from "../boundaries/repositories";
 
 interface DeleteDraftUserDTO {
     user: User;

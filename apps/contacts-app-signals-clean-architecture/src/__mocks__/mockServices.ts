@@ -1,13 +1,20 @@
 import { vi } from 'vitest';
-import { IDraftsRepository, IUsersRepository } from '../app/core/repositories';
 import { draftUserMock, draftVersionMock, publishedUserMock } from './mockData';
-import { DraftVersionsService, UserVersionFactory, UsersApiService } from 'contacts-app-core';
-import { FetchUsersQuery } from '../app/core/commands/fetch-users.query';
-import { CreateDraftUserCommand } from '../app/core/commands/create-draft-user.command';
-import { DeleteDraftUserCommand } from '../app/core/commands/delete-draft-user.command';
+import {
+  IDraftsRepository,
+  IUsersRepository,
+  DraftVersionsService,
+  UserVersionFactory,
+  UsersApiService,
+  FetchUsersQuery,
+  CreateDraftUserCommand,
+  DeleteDraftUserCommand,
+  LoadUserQuery,
+} from 'contacts-app-core';
 
 const usersRepositoryMocks: Partial<IUsersRepository> = {
   getAll: vi.fn().mockResolvedValue([publishedUserMock]),
+  fetchById: vi.fn().mockResolvedValue(publishedUserMock),
 };
 
 export const usersRepositoryMock = {
@@ -17,6 +24,7 @@ export const usersRepositoryMock = {
 const draftsRepositoryMocks: Partial<IDraftsRepository> = {
   getAll: vi.fn().mockResolvedValue([draftVersionMock]),
   insert: vi.fn().mockResolvedValue(true),
+  getDraftsForUserSync: vi.fn().mockReturnValue([draftVersionMock]),
 };
 
 export const draftsRepositoryMock = {
@@ -43,16 +51,21 @@ export const createDraftUserMock = new CreateDraftUserCommand(
 export const deleteDraftUserCommandMock = new DeleteDraftUserCommand(
   draftsRepositoryMock
 );
+export const loadUserQueryMock = new LoadUserQuery(
+  usersRepositoryMock,
+  draftsRepositoryMock,
+  new UserVersionFactory()
+);
 
-export const draftVersionsServiceFunctionsMock: Partial<DraftVersionsService> = {
-  getAll: vi.fn().mockResolvedValue([draftVersionMock]),
-  getAllDraftsSync: vi.fn().mockReturnValue([draftVersionMock]),
-};
+export const draftVersionsServiceFunctionsMock: Partial<DraftVersionsService> =
+  {
+    getAll: vi.fn().mockResolvedValue([draftVersionMock]),
+    getAllDraftsSync: vi.fn().mockReturnValue([draftVersionMock]),
+  };
 
 export const draftVersionsServiceMock = {
   ...draftVersionsServiceFunctionsMock,
 } as DraftVersionsService;
-
 
 export const usersServiceFunctionsMock: Partial<UsersApiService> = {
   fetchUsers: vi.fn().mockResolvedValue([publishedUserMock]),

@@ -26,11 +26,11 @@ export function useUsersListViewModel() {
   );
 
   // Called when user hits "Create new User":
-  const createNewDraftUser = useCallback(() => {
-    model.createNewDraftUser();
-    // not fully finished, but we would need to navigate to the new user details page
-    // navigate(`/users/${newUserId}`);
-  }, [model]);
+  const createNewDraftUser = useCallback(async () => {
+    const createdUser = await model.createNewDraftUser();
+    // navigate to the new user details page
+    navigate(`/users/${createdUser.id}`);
+  }, [model, navigate]);
 
 
   return {

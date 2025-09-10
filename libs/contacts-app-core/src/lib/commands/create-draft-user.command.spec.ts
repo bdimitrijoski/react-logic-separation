@@ -1,9 +1,10 @@
-import { UserVersion } from 'contacts-app-core';
+
 import { vi } from 'vitest';
 import { CreateDraftUserCommand } from './create-draft-user.command';
 
-import { draftUserMock, draftVersionMock, publishedUserMock } from '../../../__mocks__/mockData';
-import { mockUserFactoryServiceMock, draftsRepositoryMock } from '../../../__mocks__/mockServices';
+import { draftUserMock, draftVersionMock, publishedUserMock } from '../../__mocks__/mockData';
+import { mockUserFactoryServiceMock, draftsRepositoryMock } from '../../__mocks__/mockServices';
+import { UserVersion } from '../types';
 
 describe('CreateDraftUserCommand Test', () => {
 

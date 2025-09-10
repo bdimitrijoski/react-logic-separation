@@ -1,5 +1,6 @@
-import { User } from "contacts-app-core";
-import { IDraftsRepository, IUsersRepository } from "../repositories";
+import { IDraftsRepository, IUsersRepository } from "../boundaries/repositories";
+import { User } from "../types";
+
 
 export class FetchUsersQuery {
   constructor(

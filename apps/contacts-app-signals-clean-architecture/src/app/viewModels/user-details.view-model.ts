@@ -1,11 +1,16 @@
 import { computed, effect, ReadonlySignal, signal } from '@preact/signals-core';
-import { User, UserVersion } from 'contacts-app-core';
-import { CreateDraftUserCommand } from '../core/commands/create-draft-user.command';
-import { LoadUserQuery } from '../core/commands/load-user.query';
-import { FetchUserQueryResult } from '../core/dto';
-import { IViewModel, QueryResult } from '../core/types';
+import type {
+  User,
+  UserVersion,
+  IViewModel,
+  QueryResultSignal,
+  FetchUserQueryResult,
+  CreateDraftUserCommand,
+  LoadUserQuery,
+  DeleteDraftUserCommand,
+} from 'contacts-app-core';
+
 import { derived } from '../lib/signals';
-import { DeleteDraftUserCommand } from '../core/commands/delete-draft-user.command';
 
 export type UsersDetailsViewModelDependencies = {
   loadUserQuery: LoadUserQuery;
@@ -18,11 +23,9 @@ export type UsersDetailsViewModelDependencies = {
  * It uses/orchestrates the commands/queries/repositories to get the data and expose it to the view.
  */
 export class UsersDetailsViewModel implements IViewModel {
-  searchQuery = signal<string>('');
-  userId = signal<number>(-1);
   draft = signal<UserVersion | null>(null);
   selectedVersion = signal<string>('');
-  private _loadUserQueryResult: QueryResult<FetchUserQueryResult | undefined>;
+  _loadUserQueryResult: QueryResultSignal<FetchUserQueryResult | undefined>;
 
   private _disposables: Array<() => void> = [];
 
@@ -30,12 +33,9 @@ export class UsersDetailsViewModel implements IViewModel {
     private dependencies: UsersDetailsViewModelDependencies,
     userId: number
   ) {
-    console.log('UsersDetailsViewModel init');
-    this.userId.value = userId;
-    
     // Queries
     this._loadUserQueryResult = derived(() =>
-      dependencies.loadUserQuery.execute(this.userId.value)
+      dependencies.loadUserQuery.execute(userId)
     );
 
     // One‑time init: set from first fetched value
@@ -50,7 +50,7 @@ export class UsersDetailsViewModel implements IViewModel {
           null;
       }
     });
-    
+
     // Store the effect cleanup function
     this._disposables.push(initEffect);
   }
@@ -62,7 +62,6 @@ export class UsersDetailsViewModel implements IViewModel {
   }
   public get drafts(): ReadonlySignal<UserVersion[] | undefined> {
     return computed(() => {
-      console.log('get drafts');
       return (
         this._loadUserQueryResult.data.value?.userVersions.filter(
           (v) => v.isDraft
@@ -83,9 +82,7 @@ export class UsersDetailsViewModel implements IViewModel {
     const newVersion = await this.dependencies.createDraftUser.execute({
       user: this.publishedUser.value,
     });
-    console.log('newVersion', newVersion);
     this.selectedVersion.value = newVersion.id;
-    // this.draft.value = newVersion;
   }
 
   updateUser(field: keyof User, value: string) {
@@ -108,16 +105,16 @@ export class UsersDetailsViewModel implements IViewModel {
 
   dispose(): void {
     // Call all stored cleanup functions
-    this._disposables.forEach(disposeFn => disposeFn());
-    
+    this._disposables.forEach((disposeFn) => disposeFn());
+
     // Clear the arrays
     this._disposables = [];
-    
+
     // Clean up the derived query results
     if (this._loadUserQueryResult && this._loadUserQueryResult.dispose) {
       this._loadUserQueryResult.dispose();
     }
-    
+
     console.log('UsersDetailsViewModel disposed');
   }
 }

@@ -2,25 +2,17 @@ import {
   DraftVersionsService,
   FetchHttpClient,
   UsersApiService,
-  UserVersionFactory
+  UserVersionFactory,
+  PublishDraftCommand,
+  CreateDraftUserCommand,
+  FetchUsersQuery,
+  LoadUserQuery,
+  DeleteDraftUserCommand,
 } from 'contacts-app-core';
 import { queryClient } from '../queryClient';
-import { UsersRepository } from './infrastructure/repositories/users-repository';
 
-import {
-  CreateDraftVersionCommand,
-  CreateUserCommand,
-  PublishDraftCommand,
-  RemoveDraftVersionCommand,
-  UpdateDraftVersionCommand,
-  UpdateUserCommand,
-} from 'contacts-app-core';
-
-import { CreateDraftUserCommand } from './core/commands/create-draft-user.command';
-import { FetchUsersQuery } from './core/commands/fetch-users.query';
-import { LoadUserQuery } from './core/commands/load-user.query';
 import { DraftsRepository } from './infrastructure/repositories/drafts-repository';
-import { DeleteDraftUserCommand } from './core/commands/delete-draft-user.command';
+import { UsersRepository } from './infrastructure/repositories/users-repository';
 
 // Initialize the core services
 const httpClient = new FetchHttpClient();
@@ -40,23 +32,11 @@ export const draftsRepository = new DraftsRepository(queryClient, {
 });
 
 // Finally initialize commands and queries
-export const createDraftVersionCommand = new CreateDraftVersionCommand(
-  draftVersionsService
-);
 export const publishDraftCommand = new PublishDraftCommand(
   draftVersionsService,
   usersApiService,
   userFactoryService
 );
-export const removeDraftCommand = new RemoveDraftVersionCommand(
-  draftVersionsService
-);
-export const updateDraftCommand = new UpdateDraftVersionCommand(
-  draftVersionsService
-);
-export const createUserCommand = new CreateUserCommand(usersApiService);
-export const updateUserCommand = new UpdateUserCommand(usersApiService);
-
 
 export const createDraftUserCommand = new CreateDraftUserCommand(
   userFactoryService,
@@ -74,5 +54,5 @@ export const loadUserQuery = new LoadUserQuery(
   userFactoryService
 );
 export const deleteDraftUserCommand = new DeleteDraftUserCommand(
-  draftsRepository,
+  draftsRepository
 );
