@@ -1,82 +1,34 @@
-import { UserVersion } from 'contacts-app-core';
-import { useCallback, useMemo } from 'react';
-import { useViewModel } from '../hooks/useViewModel';
+import { useCallback, useEffect } from 'react';
 import { useSignalValue } from '../lib/use-signal-value';
-import { createDraftUserCommand, deleteDraftUserCommand, loadUserQuery, userFactoryService } from '../services';
-import { UsersDetailsViewModel } from './user-details.view-model';
+import { userDetailsModel } from './user-details.view-model';
 
 export function useUserDetailsViewModel(userId: number) {
 
-  const createCallback = useCallback(() => new UsersDetailsViewModel({
-    loadUserQuery,
-    createDraftUser: createDraftUserCommand,
-    deleteDraftUserCommand
-  }, userId), [userId]);
-  const model = useViewModel(createCallback, [userId]);
-  // const model = useMemo(() => new UsersDetailsViewModel({
-  //   loadUserQuery,
-  //   createDraftUser: createDraftUserCommand,
-  //   deleteDraftUserCommand
-  // }, userId), [userId]);
+  // Re-initialize the view model when userId changes
+  // not always needed if the view model does not need to dispose/re-init
+  useEffect(() => {
+    userDetailsModel.dispose();
+    userDetailsModel.initialize({ userId });
+  }, [userId]);
 
-  const publishedUser = useSignalValue(model.publishedUser);
-  const draft = useSignalValue(model.draft);
-  const selectedVersion = useSignalValue(model.selectedVersion);
+  const publishedUser = useSignalValue(userDetailsModel.publishedUser);
+  const draft = useSignalValue(userDetailsModel.draft);
+  const selectedVersion = useSignalValue(userDetailsModel.selectedVersion);
 
-  const publishedUserVersionId = useMemo(
-    () => userFactoryService.getPublishedVersionId(userId),
-    [userId]
-  );
-  
   const setSelectedId = useCallback((id: string) => {
-    model.selectedVersion.value = id;
-  }, [model]);
-
-  const setDraft = useCallback((d: UserVersion | null) => {
-    model.draft.value = d;
-  }, [model]);
-
-  // const onChangeField = useCallback(
-  //   (field: keyof User, value: string) => {
-  //     if (!draft) return;
-  //     setDraft({
-  //       ...draft,
-  //       data: { ...draft.data, [field]: value },
-  //       timestamp: Date.now(),
-  //     });
-  //   },
-  //   [draft, setDraft]
-  // );
-
-  // Discard local draft
-  // const onDiscard = async () => {
-  //   if (!draft) return;
-  //   // draftsCollection.delete(draft.id);
-  //   setDraft(null);
-  //   setSelectedId(publishedUserVersionId);
-  // };
-
-  // Publish draft to server
-  const onPublish = useCallback(async () => {
-    if (!draft) return;
-    console.log('Publishing', draft);
-    // await onDiscard();
+    userDetailsModel.selectedVersion.value = id;
   }, []);
 
-  console.log('selectedVersion', selectedVersion)
   return {
-    versions: useSignalValue(model.userVersions) || [],
+    versions: useSignalValue(userDetailsModel.userVersions) || [],
     selectedId: selectedVersion,
     setSelectedId,
-    isLoading: false, // useSignalValue(model.isLoading),
-    isError: false, // useSignalValue(model.isError),
-    current:
-      selectedVersion && draft?.data
-        ? draft?.data
-        : publishedUser,
-    startEdit: model.startEdit.bind(model),
-    onChangeField: model.updateUser.bind(model),
-    onPublish,
-    onDiscard: model.discardDraft.bind(model),
+    isLoading: useSignalValue(userDetailsModel.isLoading),
+    isError: useSignalValue(userDetailsModel.isError),
+    current: selectedVersion && draft?.data ? draft?.data : publishedUser,
+    startEdit: userDetailsModel.startEdit.bind(userDetailsModel),
+    onChangeField: userDetailsModel.updateUser.bind(userDetailsModel),
+    onPublish: userDetailsModel.publishDraft.bind(userDetailsModel),
+    onDiscard: userDetailsModel.discardDraft.bind(userDetailsModel),
   };
 }

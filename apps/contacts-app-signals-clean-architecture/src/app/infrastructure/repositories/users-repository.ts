@@ -32,11 +32,17 @@ export class UsersRepository implements IUsersRepository {
 
   async fetchById(id: number): Promise<User | undefined> {
     const isCollectionReady = this._usersCollection.queryResult.value.isFetched;
-    let userToFetch = this._usersCollection.items.value.find((user) => user.id === id);
+    let userToFetch = this._usersCollection.items.value.find(
+      (user) => user.id === id
+    );
 
-    if(!userToFetch && isCollectionReady){
-      userToFetch =  await this.dependencies.usersService.fetchUser(id);
-      this._usersCollection.insert(userToFetch);
+    if (!userToFetch && isCollectionReady) {
+      try {
+        userToFetch = await this.dependencies.usersService.fetchUser(id);
+        this._usersCollection.insert(userToFetch);
+      } catch (error) {
+        console.error('Error fetching user by ID:', error);
+      }
     }
 
     return Promise.resolve(userToFetch);

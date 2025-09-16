@@ -33,8 +33,8 @@ export const draftsRepository = new DraftsRepository(queryClient, {
 
 // Finally initialize commands and queries
 export const publishDraftCommand = new PublishDraftCommand(
-  draftVersionsService,
-  usersApiService,
+  usersRepository,
+  draftsRepository,
   userFactoryService
 );
 

@@ -8,34 +8,41 @@ import type {
   CreateDraftUserCommand,
   LoadUserQuery,
   DeleteDraftUserCommand,
+  PublishDraftCommand,
 } from 'contacts-app-core';
 
 import { derived } from '../lib/signals';
+import { createDraftUserCommand, deleteDraftUserCommand, loadUserQuery, publishDraftCommand } from '../services';
 
 export type UsersDetailsViewModelDependencies = {
   loadUserQuery: LoadUserQuery;
   createDraftUser: CreateDraftUserCommand;
   deleteDraftUserCommand: DeleteDraftUserCommand;
+  publishDraftCommand: PublishDraftCommand;
 };
+interface UsersDetailsViewModelProps {
+  userId: number;
+}
 
 /**
  * The view model is like a glue between the view and the domain/data layers.
  * It uses/orchestrates the commands/queries/repositories to get the data and expose it to the view.
  */
-export class UsersDetailsViewModel implements IViewModel {
+export class UsersDetailsViewModel implements IViewModel<UsersDetailsViewModelProps> {
   draft = signal<UserVersion | null>(null);
   selectedVersion = signal<string>('');
-  _loadUserQueryResult: QueryResultSignal<FetchUserQueryResult | undefined>;
+  _loadUserQueryResult: QueryResultSignal<FetchUserQueryResult | undefined> | null = null;
 
   private _disposables: Array<() => void> = [];
 
   constructor(
-    private dependencies: UsersDetailsViewModelDependencies,
-    userId: number
-  ) {
-    // Queries
+    private dependencies: UsersDetailsViewModelDependencies
+  ) {}
+
+  initialize({ userId }: UsersDetailsViewModelProps): void {
+// Queries
     this._loadUserQueryResult = derived(() =>
-      dependencies.loadUserQuery.execute(userId)
+      this.dependencies.loadUserQuery.execute(userId)
     );
 
     // One‑time init: set from first fetched value
@@ -57,13 +64,13 @@ export class UsersDetailsViewModel implements IViewModel {
 
   public get publishedUser(): ReadonlySignal<User | undefined> {
     return computed(
-      () => this._loadUserQueryResult.data.value?.publishedUser || undefined
+      () => this._loadUserQueryResult?.data.value?.publishedUser || undefined
     );
   }
   public get drafts(): ReadonlySignal<UserVersion[] | undefined> {
     return computed(() => {
       return (
-        this._loadUserQueryResult.data.value?.userVersions.filter(
+        this._loadUserQueryResult?.data.value?.userVersions.filter(
           (v) => v.isDraft
         ) || []
       );
@@ -71,11 +78,11 @@ export class UsersDetailsViewModel implements IViewModel {
   }
 
   public get userVersions(): ReadonlySignal<UserVersion[] | undefined> {
-    return computed(() => this._loadUserQueryResult.data.value?.userVersions);
+    return computed(() => this._loadUserQueryResult?.data.value?.userVersions);
   }
 
-  public isLoading = computed(() => this._loadUserQueryResult.isLoading.value);
-  public isError = computed(() => !this._loadUserQueryResult.error?.value);
+  public isLoading = computed(() => this._loadUserQueryResult?.isLoading.value);
+  public isError = computed(() => !this._loadUserQueryResult?.error?.value);
 
   async startEdit() {
     if (!this.publishedUser) return;
@@ -91,6 +98,16 @@ export class UsersDetailsViewModel implements IViewModel {
       ...this.draft.value,
       data: { ...this.draft.value?.data, [field]: value },
     };
+  }
+
+  async publishDraft() {
+    if (!this.draft.value) return;
+    console.log('Publishing', this.draft.value);
+    await this.dependencies.publishDraftCommand.execute({
+      version: this.draft.value,
+      isNew: !this.publishedUser.value,
+    });
+    await this.discardDraft();
   }
 
   async discardDraft() {
@@ -114,7 +131,19 @@ export class UsersDetailsViewModel implements IViewModel {
     if (this._loadUserQueryResult && this._loadUserQueryResult.dispose) {
       this._loadUserQueryResult.dispose();
     }
+    this._loadUserQueryResult = null;
+    this.draft.value = null;
+    this.selectedVersion.value = '';
 
     console.log('UsersDetailsViewModel disposed');
   }
 }
+
+export const userDetailsModel = new UsersDetailsViewModel(
+  {
+    loadUserQuery,
+    createDraftUser: createDraftUserCommand,
+    deleteDraftUserCommand,
+    publishDraftCommand
+  }
+);

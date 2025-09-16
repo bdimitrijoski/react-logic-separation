@@ -1,6 +1,5 @@
-import { DraftVersionsService } from '../services/draft-user-versions.service';
+import { IDraftsRepository, IUsersRepository } from '../boundaries/repositories';
 import { UserVersionFactory } from '../services/user-version-factory.service';
-import { UsersApiService } from '../services/users-api.service';
 import { UserVersion } from '../types';
 
 interface PublishDraftDTO {
@@ -9,17 +8,17 @@ interface PublishDraftDTO {
 }
 export class PublishDraftCommand {
   constructor(
-    private versionsService: DraftVersionsService,
-    private usersService: UsersApiService,
+    private usersRepository: IUsersRepository,
+    private draftsRepository: IDraftsRepository,
     private userFactoryService: UserVersionFactory
   ) {}
 
   async execute(dto: PublishDraftDTO): Promise<UserVersion> {
-    const saved = dto.isNew
-      ? await this.usersService.createUser(dto.version.data)
-      : await this.usersService.updateUser(dto.version.data);
+    const saved = dto.version.isDraft
+      ? await this.usersRepository.insert(dto.version.data)
+      : await this.usersRepository.update(dto.version.data);
     // once published, remove draft
-    this.versionsService.deleteDraft(saved.id, dto.version.id);
+    this.draftsRepository.deleteDraftsForUser(dto.version.data.id);
     return this.userFactoryService.createVersion(saved);
   }
 }
